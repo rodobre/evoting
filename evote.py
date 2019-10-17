@@ -1,7 +1,8 @@
 import json
 import ioplatform
-from flask import Flask, request, jsonify
-app = Flask(__name__)
+from flask import Flask, request, jsonify, render_template, render_template_string
+
+app = Flask(__name__, template_folder='./templates')
 
 class SmartEVote:
 	def __init__(self):
@@ -43,6 +44,20 @@ class SmartEVote:
 		if remote_ip in self.voters:
 			return True
 		return False
+
+@app.route('/index')
+@app.route('/')
+def index_page():
+	return render_template('index.html')
+
+@app.route('/voting/locations')
+def show_candidates():
+	district = request.args.get('district')
+	f = open('templates/show_voting_locations.html', 'r')
+	contents = f.read()
+	f.close()
+	contents = contents.replace('%district%', district)
+	return render_template_string(contents)
 
 evote_manager = SmartEVote()
 
